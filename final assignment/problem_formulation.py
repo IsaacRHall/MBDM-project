@@ -28,10 +28,44 @@ def sum_over(*args):
     return sum(numbers)
 
 
+# def sum_over_time(*args):
+#     data = np.asarray(args)
+#     summed = data.sum(axis=0)
+#     return summed
+
 def sum_over_time(*args):
+    """
+    Sum over time to aggregate outcomes into a scalar value.
+
+    Parameters
+    ----------
+    *args : array-like
+        Arrays to be summed.
+
+    Returns
+    -------
+    float
+        The sum of the arrays.
+    """
     data = np.asarray(args)
-    summed = data.sum(axis=0)
-    return summed
+    return data.sum()
+
+
+def aggregate_a4_a5(*args):
+    """
+    Aggregate outcomes for A.4 and A.5 by summing them.
+
+    Parameters
+    ----------
+    *args : array-like
+        Arrays to be summed.
+
+    Returns
+    -------
+    float
+        The sum of the arrays for A.4 and A.5.
+    """
+    return np.sum(args)
 
 
 def get_model_for_problem_formulation(problem_formulation_id):
@@ -369,6 +403,84 @@ def get_model_for_problem_formulation(problem_formulation_id):
         outcomes.append(ArrayOutcome("RfR Total Costs"))
         outcomes.append(ArrayOutcome("Expected Evacuation Costs"))
         dike_model.outcomes = outcomes
+
+
+    elif problem_formulation_id == 6:
+        # Define outcomes for problem formulation 6
+        direction = ScalarOutcome.MINIMIZE
+        outcomes = []
+
+        for dike in ['A.4', 'A.5']:
+            outcomes.append(
+                ScalarOutcome(
+                    f"{dike}_Expected Annual Damage",
+                    variable_name=[f"{dike}_Expected Annual Damage"],
+                    function=sum_over_time,
+                    kind=direction,
+                )
+            )
+            outcomes.append(
+                ScalarOutcome(
+                    f"{dike}_Dike Investment Costs",
+                    variable_name=[f"{dike}_Dike Investment Costs"],
+                    function=sum_over_time,
+                    kind=direction,
+                )
+            )
+            outcomes.append(
+                ScalarOutcome(
+                    f"{dike}_Expected Number of Deaths",
+                    variable_name=[f"{dike}_Expected Number of Deaths"],
+                    function=sum_over_time,
+                    kind=direction,
+                )
+            )
+
+        dike_model.outcomes = outcomes
+
+
+    elif problem_formulation_id == 7:
+        # Define outcomes for problem formulation 7
+        direction = ScalarOutcome.MINIMIZE
+        outcomes = []
+
+        # Combined outcomes for 'A.4' and 'A.5'
+        outcomes.append(
+            ScalarOutcome(
+                "Combined_Expected Annual Damage",
+                variable_name=[
+                    "A.4_Expected Annual Damage",
+                    "A.5_Expected Annual Damage"
+                ],
+                function=sum_over,
+                kind=direction,
+            )
+        )
+        outcomes.append(
+            ScalarOutcome(
+                "Combined_Dike Investment Costs",
+                variable_name=[
+                    "A.4_Dike Investment Costs",
+                    "A.5_Dike Investment Costs"
+                ],
+                function=sum_over,
+                kind=direction,
+            )
+        )
+        outcomes.append(
+            ScalarOutcome(
+                "Combined_Expected Number of Deaths",
+                variable_name=[
+                    "A.4_Expected Number of Deaths",
+                    "A.5_Expected Number of Deaths"
+                ],
+                function=sum_over,
+                kind=direction,
+            )
+        )
+
+        dike_model.outcomes = outcomes
+
 
     else:
         raise TypeError("unknown identifier")
