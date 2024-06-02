@@ -1,3 +1,21 @@
+# import subprocess
+# import sys
+#
+# # Function to install packages
+# def install(package):
+#     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+#
+# # List of required packages
+# required_packages = [
+#     "ema_workbench",
+#     "pandas",
+#     "numpy"
+# ]
+#
+# # Install required packages
+# for package in required_packages:
+#     install(package)
+
 import os
 import pandas as pd
 import random
@@ -47,7 +65,7 @@ def process_outcomes(outcomes):
     return pd.DataFrame(processed)
 
 if __name__ == "__main__":
-    problem_formulation_id = 6
+    problem_formulation_id = 8
 
     # Set up logging and seed
     random.seed(1361)
@@ -63,32 +81,32 @@ if __name__ == "__main__":
     # Random Policy Analysis
     with MultiprocessingEvaluator(dike_model, n_processes=-1) as evaluator:
         random_experiments, random_outcomes = evaluator.perform_experiments(
-            scenarios=1000, policies=500
+            scenarios=100, policies=100
         )
-    random_experiments.to_csv(os.path.join(output_dir, 'random_experiments_combined.csv'))
+    random_experiments.to_csv(os.path.join(output_dir, 'random_experiments.csv'))
     random_outcomes_df = process_outcomes(random_outcomes)
     random_outcomes_df['policy'] = random_experiments['policy']
-    random_outcomes_df.to_csv(os.path.join(output_dir, 'random_outcomes_combined.csv'))
+    random_outcomes_df.to_csv(os.path.join(output_dir, 'random_outcomes.csv'))
 
     # Sobol Sensitivity Analysis
     base_case_policy = [Policy("Do Nothing Policy", **get_do_nothing_dict(dike_model))]
     with MultiprocessingEvaluator(dike_model, n_processes=-1) as evaluator:
         sobol_experiments, sobol_outcomes = evaluator.perform_experiments(
-            scenarios=1024, policies=base_case_policy, uncertainty_sampling=Samplers.SOBOL
+            scenarios=512, policies=base_case_policy, uncertainty_sampling=Samplers.SOBOL
         )
-    sobol_experiments.to_csv(os.path.join(output_dir, 'sobol_experiments_combined.csv'))
+    sobol_experiments.to_csv(os.path.join(output_dir, 'sobol_experiments.csv'))
     sobol_outcomes_df = process_outcomes(sobol_outcomes)
-    sobol_outcomes_df.to_csv(os.path.join(output_dir, 'sobol_outcomes_combined.csv'))
+    sobol_outcomes_df.to_csv(os.path.join(output_dir, 'sobol_outcomes.csv'))
 
     # No Policy Analysis
     with MultiprocessingEvaluator(dike_model, n_processes=-1) as evaluator:
         no_policy_experiments, no_policy_outcomes = evaluator.perform_experiments(
-            scenarios=1000000, policies=base_case_policy
+            scenarios=10000, policies=base_case_policy
         )
-    no_policy_experiments.to_csv(os.path.join(output_dir, 'no_policy_experiments_combined.csv'))
+    no_policy_experiments.to_csv(os.path.join(output_dir, 'no_policy_experiments.csv'))
     no_policy_outcomes_df = process_outcomes(no_policy_outcomes)
     no_policy_outcomes_df['policy'] = no_policy_experiments['policy']
-    no_policy_outcomes_df.to_csv(os.path.join(output_dir, 'no_policy_outcomes_combined.csv'))
+    no_policy_outcomes_df.to_csv(os.path.join(output_dir, 'no_policy_outcomes.csv'))
 
 
 # def get_do_nothing_dict(model):
